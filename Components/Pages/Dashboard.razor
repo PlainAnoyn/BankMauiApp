@@ -1,6 +1,7 @@
 @page "/"
-
+@using BankMauiApp.Services
 @inject NavigationManager NavigationManager
+@inject UserService UserService
 
 <h3>Welcome to your Dashboard</h3>
 
@@ -8,30 +9,22 @@
 
 <button @onclick="Logout">Logout</button>
 <button @onclick="Debts">Debts</button>
-<button @onclick="Transactions">Transaction</button>
-
+<button @onclick="Transactions">Transactions</button>
 
 @code {
+    private void Logout()
+    {
+        UserService.Logout();
+        NavigationManager.NavigateTo("/login");
+    }
 
-	private void Logout()
+    private void Debts()
+    {
+        NavigationManager.NavigateTo("/debts");
+    }
 
-	{
-
-		NavigationManager.NavigateTo("/login");
-
-	}
-	private void Debts()
-
-	{
-
-		NavigationManager.NavigateTo("/Debts");
-
-	}
-	private void Transactions()
-
-	{
-
-		NavigationManager.NavigateTo("/Transactions");
-
-	}
+    private void Transactions()
+    {
+        NavigationManager.NavigateTo("/transactions");
+    }
 }

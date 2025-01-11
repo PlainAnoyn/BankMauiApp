@@ -1,153 +1,103 @@
 @page "/transactions"
 
 @using BankMauiApp.Models
-
-@inject BankMauiApp.Services.UserService UserService
+@using BankMauiApp.Services
+@inject UserService UserService
 
 <h1>User Transactions</h1>
 
 <table class="table">
-
-	<thead>
-
-		<tr>
-
-			<th>Transaction ID</th>
-
-			<th>User Name</th>
-
-			<th>Main Balance</th>
-
-			<th>Debit</th>
-
-			<th>Credit</th>
-
-			<th>Date</th>
-
-			<th>Description</th>
-
-		</tr>
-
-	</thead>
-
-	<tbody>
-
-		@foreach (var transaction in Data.Transactions)
-
-		{
-
-			<tr>
-
-				<td>@transaction.Id</td>
-
-				<td>@Data.Users.FirstOrDefault(u => u.Id == transaction.UserId)?.Name</td>
-
-				<td>@(Data.Transactions.Sum(t => t.Credit) - Data.Transactions.Sum(t => t.Debit))</td>
-
-				<td>@transaction.Debit</td>
-
-				<td>@transaction.Credit</td>
-
-				<td>@transaction.Date.ToString("MM/dd/yyyy")</td>
-
-				<td>@transaction.Description</td>
-
-			</tr>
-
-		}
-
-	</tbody>
-
+    <thead>
+        <tr>
+            <th>Transaction ID</th>
+            <th>User Name</th>
+            <th>Main Balance</th>
+            <th>Debit</th>
+            <th>Credit</th>
+            <th>Date</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaction in transactions)
+        {
+            <tr>
+                <td>@transaction.Id</td>
+                <td>@users.FirstOrDefault(u => u.Id == transaction.UserId)?.Name</td>
+                <td>@(transactions.Sum(t => t.Credit) - transactions.Sum(t => t.Debit))</td>
+                <td>@transaction.Debit</td>
+                <td>@transaction.Credit</td>
+                <td>@transaction.Date.ToString("MM/dd/yyyy")</td>
+                <td>@transaction.Description</td>
+            </tr>
+        }
+    </tbody>
 </table>
 
 <h2>Add New Transaction</h2>
 
 <EditForm Model="newTransaction" OnValidSubmit="HandleTransactionSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-	<DataAnnotationsValidator />
+    <div class="form-group">
+        <label for="userId">User</label>
+        <select id="userId" @bind="newTransaction.UserId" class="form-control">
+            @foreach (var user in users)
+            {
+                <option value="@user.Id">@user.Name</option>
+            }
+        </select>
+    </div>
 
-	<ValidationSummary />
+    <div class="form-group">
+        <label for="debit">Debit</label>
+        <InputNumber id="debit" @bind-Value="newTransaction.Debit" class="form-control" />
+    </div>
 
-	<div class="form-group">
+    <div class="form-group">
+        <label for="credit">Credit</label>
+        <InputNumber id="credit" @bind-Value="newTransaction.Credit" class="form-control" />
+    </div>
 
-		<label for="userId">User</label>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <InputText id="description" @bind-Value="newTransaction.Description" class="form-control" />
+    </div>
 
-		<select id="userId" @bind="newTransaction.UserId" class="form-control">
-
-			@foreach (var user in Data.Users)
-
-			{
-
-				<option value="@user.Id">@user.Name</option>
-
-			}
-
-		</select>
-
-	</div>
-
-	<div class="form-group">
-
-		<label for="debit">Debit</label>
-
-		<InputNumber id="debit" @bind-Value="newTransaction.Debit" class="form-control" />
-
-	</div>
-
-	<div class="form-group">
-
-		<label for="credit">Credit</label>
-
-		<InputNumber id="credit" @bind-Value="newTransaction.Credit" class="form-control" />
-
-	</div>
-
-	<div class="form-group">
-
-		<label for="description">Description</label>
-
-		<InputText id="description" @bind-Value="newTransaction.Description" class="form-control" />
-
-	</div>
-
-	<div class="form-group">
-
-		<button type="submit" class="btn btn-primary">Add Transaction</button>
-
-	</div>
-
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Add Transaction</button>
+    </div>
 </EditForm>
 
 @code {
+    private List<Transaction> transactions = new List<Transaction>();
+    private List<User> users = new List<User>();
+    private Transaction newTransaction = new Transaction();
 
-	private AppData Data;
+    protected override void OnInitialized()
+    {
+        LoadData();
+    }
 
-	private Transaction newTransaction = new Transaction();
+    private void LoadData()
+    {
+        var appData = UserService.LoadData();
+        transactions = appData.Transactions;
+        users = appData.Users;
+    }
 
-	protected override void OnInitialized()
+    private void HandleTransactionSubmit()
+    {
+        newTransaction.Id = transactions.Count + 1;
+        newTransaction.Date = DateTime.Now;
+        transactions.Add(newTransaction);
 
-	{
+        var appData = UserService.LoadData();
+        appData.Transactions = transactions;
+        UserService.SaveData(appData);
 
-		Data = UserService.LoadData();
-
-	}
-
-	private void HandleTransactionSubmit()
-
-	{
-
-		newTransaction.Id = Data.Transactions.Count + 1;
-
-		newTransaction.Date = DateTime.Now;
-
-		Data.Transactions.Add(newTransaction);
-
-		UserService.SaveData(Data);
-
-		// Reset form
-
-		newTransaction = new Transaction();
-
-	}
-
-} 
+        // Reset form
+        newTransaction = new Transaction();
+    }
+}

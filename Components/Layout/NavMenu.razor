@@ -1,3 +1,69 @@
-﻿<p>
-    <a href="/login">Login</a> | <a href="/register">Register</a>
-</p>
+﻿@using BankMauiApp.Services
+@using BankMauiApp.Models
+@code {
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+    private AppData Data { get; set; }
+
+    public NavMenu()
+    {
+        Data = new AppData();
+    }
+
+    private Task HandleClose()
+    {
+        return OnClose.InvokeAsync();
+    }
+}
+
+<nav>
+    <button class="close-button" @onclick="HandleClose">
+        &times;
+    </button>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+    </ul>
+</nav>
+
+<style>
+    nav {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+            nav ul li {
+                margin: 10px 0;
+            }
+
+                nav ul li a {
+                    color: white;
+                    text-decoration: none;
+                    padding: 10px 20px;
+                    display: block;
+                    transition: background-color 0.3s;
+                }
+
+                    nav ul li a:hover {
+                        background-color: #495057;
+                    }
+
+    .close-button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5em;
+        padding: 10px 20px;
+        cursor: pointer;
+        align-self: flex-end;
+    }
+</style>

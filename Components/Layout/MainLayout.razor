@@ -1,13 +1,107 @@
 ﻿@inherits LayoutComponentBase
+
 <div class="page">
-	<div class="sidebar"> 
-		<NavMenu /> 
-		<!-- Include your NavMenu component here --> 
-	</div> 
-	<main> 
-		<div class="top-row px-4"> 
-			<a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-			</div> 
-			<article class="content px-4"> @Body </article> 
-		</main>
-		</div> 
+    <button class="hamburger-button" @onclick="ToggleMenu" style="display: @(isMenuVisible ? "none" : "block")">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+    </button>
+    <div class="sidebar" style="display: @(isMenuVisible ? "block" : "none")">
+        <NavMenu OnClose="CloseMenu" />
+    </div>
+    <main>
+        <div class="top-row px-4">
+            <a href="https://example.com/about" target="_blank">About</a>
+        </div>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f9;
+    }
+
+    .page {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        width: 250px;
+        background-color: #343a40;
+        color: white;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        padding-top: 20px;
+    }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+
+            .sidebar a:hover {
+                background-color: #495057;
+            }
+
+    main {
+        flex-grow: 1;
+        padding: 20px;
+        background-color: #f8f9fa;
+        margin-left: 250px;
+    }
+
+    .top-row {
+        display: flex;
+        justify-content: flex-start;
+        padding: 10px 0;
+        background-color: #e9ecef;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .hamburger-button {
+        background: none;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+        .hamburger-button .line {
+            width: 30px;
+            height: 3px;
+            background-color: #333;
+            margin: 5px 0;
+        }
+
+    .content {
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+@code {
+    private bool isMenuVisible = false;
+
+    private void ToggleMenu()
+    {
+        isMenuVisible = !isMenuVisible;
+    }
+
+    private void CloseMenu()
+    {
+        isMenuVisible = false;
+    }
+}

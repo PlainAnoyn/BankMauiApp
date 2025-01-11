@@ -15,7 +15,7 @@
 
 @if (!string.IsNullOrEmpty(Message))
 {
-    <p>@Message</p>
+        <p>@Message</p>
 }
 
 @code {
@@ -23,7 +23,7 @@
     private string RegisterPassword = "";
     private string RegisterEmail = "";
     private string Message = "";
-    private List<User> Users = new();
+    private List<User> Users = new List<User>();
 
     protected override void OnInitialized()
     {

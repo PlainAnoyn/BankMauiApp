@@ -1,153 +1,85 @@
 @page "/debts"
-
 @using BankMauiApp.Models
-
 @inject BankMauiApp.Services.UserService UserService
 
 <h1>User Debts</h1>
 
 <table class="table">
-
-<thead>
-
-<tr>
-
-<th>Debt ID</th>
-
-<th>User Name</th>
-
-<th>Total Debt</th>
-
-<th>Paid Amount</th>
-
-<th>Remaining Debt</th>
-
-<th>Date</th>
-
-<th>Description</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-@foreach (var debt in Data.Debts)
-
-{
-
-<tr>
-
-<td>@debt.Id</td>
-
-<td>@Data.Users.FirstOrDefault(u => u.Id == debt.UserId)?.Name</td>
-
-<td>@debt.Amount</td>
-
-<td>@debt.PaidAmount</td>
-
-<td>@(Data.Debts.Sum(d => d.Amount) - Data.Debts.Sum(d => d.PaidAmount))</td>
-
-<td>@debt.Date.ToString("MM/dd/yyyy")</td>
-
-<td>@debt.Description</td>
-
-</tr>
-
-}
-
-</tbody>
-
+    <thead>
+        <tr>
+            <th>Debt ID</th>
+            <th>User Name</th>
+            <th>Total Debt</th>
+            <th>Paid Amount</th>
+            <th>Remaining Debt</th>
+            <th>Date</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var debt in Data.Debts)
+        {
+            <tr>
+                <td>@debt.Id</td>
+                <td>@Data.Users.FirstOrDefault(u => u.Id == debt.UserId)?.Name</td>
+                <td>@debt.Amount</td>
+                <td>@debt.PaidAmount</td>
+                <td>@(debt.Amount - debt.PaidAmount)</td>
+                <td>@debt.Date.ToString("MM/dd/yyyy")</td>
+                <td>@debt.Description</td>
+            </tr>
+        }
+    </tbody>
 </table>
 
 <h2>Add New Debt</h2>
 
 <EditForm Model="newDebt" OnValidSubmit="HandleDebtSubmit">
-
-<DataAnnotationsValidator />
-
-<ValidationSummary />
-
-<div class="form-group">
-
-<label for="userId">User</label>
-
-<select id="userId" @bind="newDebt.UserId" class="form-control">
-
-@foreach (var user in Data.Users)
-
-{
-
-<option value="@user.Id">@user.Name</option>
-
-}
-
-</select>
-
-</div>
-
-<div class="form-group">
-
-<label for="amount">Debt Amount</label>
-
-<InputNumber id="amount" @bind-Value="newDebt.Amount" class="form-control" />
-
-</div>
-
-<div class="form-group">
-
-<label for="paidAmount">Paid Amount</label>
-
-<InputNumber id="paidAmount" @bind-Value="newDebt.PaidAmount" class="form-control" />
-
-</div>
-
-<div class="form-group">
-
-<label for="description">Description</label>
-
-<InputText id="description" @bind-Value="newDebt.Description" class="form-control" />
-
-</div>
-
-<div class="form-group">
-
-<button type="submit" class="btn btn-primary">Add Debt</button>
-
-</div>
-
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label for="userId">User</label>
+        <select id="userId" @bind="newDebt.UserId" class="form-control">
+            @foreach (var user in Data.Users)
+            {
+                <option value="@user.Id">@user.Name</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="amount">Debt Amount</label>
+        <InputNumber id="amount" @bind-Value="newDebt.Amount" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="paidAmount">Paid Amount</label>
+        <InputNumber id="paidAmount" @bind-Value="newDebt.PaidAmount" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <InputText id="description" @bind-Value="newDebt.Description" class="form-control" />
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Add Debt</button>
+    </div>
 </EditForm>
 
 @code {
+    private AppData Data;
+    private Debt newDebt = new Debt();
 
-private AppData Data;
+    protected override void OnInitialized()
+    {
+        Data = UserService.LoadData();
+    }
 
-private Debt newDebt = new Debt();
+    private void HandleDebtSubmit()
+    {
+        newDebt.Id = Data.Debts.Count + 1;
+        newDebt.Date = DateTime.Now;
+        Data.Debts.Add(newDebt);
+        UserService.SaveData(Data);
 
-protected override void OnInitialized()
-
-{
-
-Data = UserService.LoadData();
-
+        // Reset form
+        newDebt = new Debt();
+    }
 }
-
-private void HandleDebtSubmit()
-
-{
-
-newDebt.Id = Data.Debts.Count + 1;
-
-newDebt.Date = DateTime.Now;
-
-Data.Debts.Add(newDebt);
-
-UserService.SaveData(Data);
-
-// Reset form
-
-newDebt = new Debt();
-
-}
-
-} 
