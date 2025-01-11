@@ -1,0 +1,37 @@
+@page "/"
+
+@inject NavigationManager NavigationManager
+
+<h3>Welcome to your Dashboard</h3>
+
+<p>Here is your user dashboard.</p>
+
+<button @onclick="Logout">Logout</button>
+<button @onclick="Debts">Debts</button>
+<button @onclick="Transactions">Transaction</button>
+
+
+@code {
+
+	private void Logout()
+
+	{
+
+		NavigationManager.NavigateTo("/login");
+
+	}
+	private void Debts()
+
+	{
+
+		NavigationManager.NavigateTo("/Debts");
+
+	}
+	private void Transactions()
+
+	{
+
+		NavigationManager.NavigateTo("/Transactions");
+
+	}
+}

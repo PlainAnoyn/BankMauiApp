@@ -1,6 +1,5 @@
-﻿using BankMauiApp;
-using Microsoft.Extensions.Logging;
-using static BankMauiApp.Components.Layout.MainLayout;
+﻿using Microsoft.AspNetCore.Components.WebView.Maui;
+using BankMauiApp.Services;
 
 namespace BankMauiApp
 {
@@ -18,11 +17,11 @@ namespace BankMauiApp
 
             builder.Services.AddMauiBlazorWebView();
 
-
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
-            builder.Logging.AddDebug();
 #endif
+
+            builder.Services.AddSingleton<UserService>();  // Register UserService for DI
 
             return builder.Build();
         }

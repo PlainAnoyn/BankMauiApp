@@ -1,41 +1,45 @@
-﻿@page "/"
-@using static BankMauiApp.Components.Layout.MainLayout
-@inject IJSRuntime JS
-@inject NavigationManager Navigation
+@page "/login"
+@using BankMauiApp.Models
+@using BankMauiApp.Services
+@inject UserService UserService
+@inject NavigationManager NavigationManager
 
 <h3>Login</h3>
 
-<form>
-    <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label">Enter username.</label>
-        <input type="text" class="form-control" id="exampleInputEmail1" @bind="username">
-        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-    </div>
-    <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Enter Password</label>
-        <input type="password" class="form-control" id="exampleInputPassword1" @bind="password">
-    </div>
+<div>
+    <input @bind="LoginUsername" placeholder="Username" />
+    <input @bind="LoginPassword" placeholder="Password" type="password" />
+    <button @onclick="PerformLogin">Login</button>
+</div>
 
-    <select class="form-select" aria-label="Default select example" @bind="currencyType">
-        <option selected>Select the currency type.</option>
-        <option value="NRS">NRS</option>
-        <option value="USD">USD</option>
-        <option value="BGP">BGP</option>
-        <option value="INRS">INRS</option>
-    </select>
-    <br />
-    <button type="button" class="btn btn-primary" @onclick="LoginUser">Login</button>
-</form>
+@if (!string.IsNullOrEmpty(Message))
+{
+    <p>@Message</p>
+}
 
-<NavLink class="nav-link" href="signinpage" Match="NavLinkMatch.All">
-    <span class="oi oi-home" aria-hidden="true"></span> Go to register page.
-</NavLink>
+@code {
+    private string LoginUsername = "";
+    private string LoginPassword = "";
+    private string Message = "";
 
-<script>
-    function showAlert(message)
+    private async Task PerformLogin()
     {
-        alert(message);
+        if (string.IsNullOrWhiteSpace(LoginUsername) || string.IsNullOrWhiteSpace(LoginPassword))
+        {
+            Message = "Username and password are required.";
+            return;
+        }
+
+        var user = UserService.LoadUsers().FirstOrDefault(u => u.Username == LoginUsername);
+        if (user == null || !UserService.ValidatePassword(LoginPassword, user.Password))
+        {
+            Message = "Invalid username or password.";
+            return;
+        }
+
+        UserService.Login(user);
+        Message = "Login successful. Redirecting...";
+        await Task.Delay(2000);
+        NavigationManager.NavigateTo("/");
     }
-</script>
-
-
+}

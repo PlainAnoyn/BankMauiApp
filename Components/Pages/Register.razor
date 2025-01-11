@@ -1,49 +1,62 @@
-@page "/regester"
-@inject NavigationManager Navigation
+@page "/register"
 @using BankMauiApp.Models
-@using static BankMauiApp.Components.Layout.MainLayout
-@inject IJSRuntime JS
-<h3>SigninPage</h3>
+@using BankMauiApp.Services
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+
+<h3>Register</h3>
 
 <div>
-    <form>
-        <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">Enter First name</label>
-            <input type="text" class="form-control" id="exampleInputFirstName" @bind="first_name">
-        </div>
-        <br>
-        <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">Enter Last name</label>
-            <input type="text" class="form-control" id="exampleInputlastname" @bind="last_name">
-        </div>
-        <br>
-        <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Enter username</label>
-            <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" @bind="username">
-            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-        </div>
-        <br />
-        <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">Enter Password</label>
-            <input type="password" class="form-control" id="exampleInputPassword1" @bind="password">
-        </div>
-        <br />
-        <button type="button" class="btn btn-primary" @onclick="SignInUser">SignIn</button>
-    </form>
+    <input @bind="RegisterUsername" placeholder="Username" />
+    <input @bind="RegisterPassword" placeholder="Password" type="password" />
+    <input @bind="RegisterEmail" placeholder="Email" />
+    <button @onclick="RegisterUser">Register</button>
 </div>
 
-<NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-    <span class="oi oi-home" aria-hidden="true"></span> Go to Login page.
-</NavLink>
-
-<script>
-    function showAlert(message)
-    {
-    alert(message); // Display the custom message in the alert box
-    }
-</script>
-
-@code
+@if (!string.IsNullOrEmpty(Message))
 {
+    <p>@Message</p>
+}
 
+@code {
+    private string RegisterUsername = "";
+    private string RegisterPassword = "";
+    private string RegisterEmail = "";
+    private string Message = "";
+    private List<User> Users = new();
+
+    protected override void OnInitialized()
+    {
+        Users = UserService.LoadUsers();
+    }
+
+    private async Task RegisterUser()
+    {
+        if (string.IsNullOrWhiteSpace(RegisterUsername) || string.IsNullOrWhiteSpace(RegisterPassword))
+        {
+            Message = "Username and password are required.";
+            return;
+        }
+
+        if (Users.Any(u => u.Username == RegisterUsername))
+        {
+            Message = "Username already exists.";
+            return;
+        }
+
+        // Create new user and hash the password
+        var newUser = new User
+            {
+                Username = RegisterUsername,
+                Password = UserService.HashPassword(RegisterPassword), // Hash the password
+                Email = RegisterEmail
+            };
+
+        Users.Add(newUser);
+        UserService.SaveUsers(Users);
+
+        Message = "Registration successful. Redirecting to login...";
+        await Task.Delay(2000);
+        NavigationManager.NavigateTo("/login");
+    }
 }
